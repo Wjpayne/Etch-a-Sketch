@@ -3,6 +3,11 @@ const resetButton = document.getElementById('reset');
 const colorModeButton = document.getElementById('colorMode');
 
 let randomColors = false; // toggle for color mode
+let mouseDown = false;    // track if mouse button is pressed
+
+// Track mouse state globally
+document.body.addEventListener('mousedown', () => mouseDown = true);
+document.body.addEventListener('mouseup', () => mouseDown = false);
 
 // Create the grid dynamically
 function createGrid(size) {
@@ -16,22 +21,34 @@ function createGrid(size) {
     container.appendChild(square);
   }
 
-  addHoverEffect(); // apply hover after creating grid
+  addDrawEffect(); // apply draw effect after creating grid
 }
 
-// Add hover drawing effect
-function addHoverEffect() {
+// Draw on squares while mouse is pressed
+function addDrawEffect() {
   const squares = document.querySelectorAll('.grid-square');
+
   squares.forEach(square => {
+    // Draw on hover if mouse is down
     square.addEventListener('mouseover', () => {
-      if (randomColors) {
-        const randomColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-        square.style.backgroundColor = randomColor;
-      } else {
-        square.style.backgroundColor = 'black';
+      if (mouseDown) {
+        drawSquare(square);
       }
     });
+
+    // Draw on single click
+    square.addEventListener('mousedown', () => drawSquare(square));
   });
+}
+
+// Function to apply color to a square
+function drawSquare(square) {
+  if (randomColors) {
+    const randomColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    square.style.backgroundColor = randomColor;
+  } else {
+    square.style.backgroundColor = 'black';
+  }
 }
 
 // Reset button functionality
