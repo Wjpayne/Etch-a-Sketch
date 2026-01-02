@@ -2,10 +2,10 @@ const container = document.getElementById('container');
 const resetButton = document.getElementById('reset');
 const colorModeButton = document.getElementById('colorMode');
 
-let randomColors = false; // toggle for color mode
-let mouseDown = false;    // track if mouse button is pressed
+let randomColors = false; // toggle random color mode
+let mouseDown = false;    // track if mouse is pressed
 
-// Track mouse state globally
+// Track mouse globally
 document.body.addEventListener('mousedown', () => mouseDown = true);
 document.body.addEventListener('mouseup', () => mouseDown = false);
 
@@ -18,40 +18,44 @@ function createGrid(size) {
   for (let i = 0; i < size * size; i++) {
     const square = document.createElement('div');
     square.classList.add('grid-square');
+    // Set initial data attribute for shading (0 = no dark)
+    square.dataset.shade = 0;
     container.appendChild(square);
   }
 
-  addDrawEffect(); // apply draw effect after creating grid
+  addDrawEffect();
 }
 
-// Draw on squares while mouse is pressed
+// Draw effect with shading / random colors
 function addDrawEffect() {
   const squares = document.querySelectorAll('.grid-square');
 
   squares.forEach(square => {
-    // Draw on hover if mouse is down
     square.addEventListener('mouseover', () => {
-      if (mouseDown) {
-        drawSquare(square);
-      }
+      if (mouseDown) drawSquare(square);
     });
 
-    // Draw on single click
     square.addEventListener('mousedown', () => drawSquare(square));
   });
 }
 
-// Function to apply color to a square
+// Apply color/shading to a square
 function drawSquare(square) {
   if (randomColors) {
     const randomColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
     square.style.backgroundColor = randomColor;
   } else {
-    square.style.backgroundColor = 'black';
+    // Gradual shading
+    let shade = parseInt(square.dataset.shade);
+    if (shade < 10) shade += 1; // increase shade by 1
+    square.dataset.shade = shade;
+
+    const brightness = 100 - shade * 10; // decrease brightness
+    square.style.backgroundColor = `hsl(0, 0%, ${brightness}%)`; // black shading
   }
 }
 
-// Reset button functionality
+// Reset button
 resetButton.addEventListener('click', () => {
   let newSize = prompt("Enter new grid size (max 64):");
   newSize = parseInt(newSize);
@@ -62,7 +66,7 @@ resetButton.addEventListener('click', () => {
   }
 });
 
-// Toggle random colors mode
+// Toggle random color mode
 colorModeButton.addEventListener('click', () => {
   randomColors = !randomColors;
   colorModeButton.textContent = `Random Colors: ${randomColors ? "On" : "Off"}`;
